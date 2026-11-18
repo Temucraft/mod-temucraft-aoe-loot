@@ -1,0 +1,36 @@
+[worldserver]
+
+########################################
+# mod-temucraft-aoe-loot
+########################################
+#
+#    Temucraft.AoeLoot.Enable
+#        Description: Opening a corpse also takes the gold and plain items of other corpses you may loot nearby.
+#                     Quest, free-for-all and conditional items stay on their own corpse. Never more than the
+#                     18 loot slots the client can hold.
+#        Default:     1
+
+Temucraft.AoeLoot.Enable = 1
+
+#
+#    Temucraft.AoeLoot.Range
+#    Temucraft.AoeLoot.MaxCorpses
+#        Description: How far around the opened corpse to look (yards), and how many other corpses at most.
+#        Default:     30, 10
+
+Temucraft.AoeLoot.Range = 30
+Temucraft.AoeLoot.MaxCorpses = 10
+
+#
+#    Temucraft.AoeLoot.Groups
+#        Description: Also in groups, but only with free-for-all loot (rolls and master loot are never bypassed).
+#        Default:     1
+
+Temucraft.AoeLoot.Groups = 1
+
+#
+#    Temucraft.AoeLoot.Message
+#        Description: Say in chat how many more corpses were looted.
+#        Default:     1
+
+Temucraft.AoeLoot.Message = 1
