@@ -21,3 +21,13 @@ The 1 player-facing texts (chat messages, gossip options) are in the `module_str
 module and id plus the locale (`deDE`, `esES`, `frFR`, ...). If a row is missing the English text in the code is used.
 
 Part of the Temucraft modules for AzerothCore 3.3.5a.
+
+## Also in this module
+
+These were separate modules; they now live here, each with its own folder under `src/`, its own config file in
+`conf/` (same file and key names as before) and its notes under `docs/`. Their SQL files kept their names, so nothing
+is applied twice. Remove the old module folders from `modules/` before building.
+
+| Was | What | Code | Notes |
+|---|---|---|---|
+| mod-temucraft-gleaner | Gleaner-3000, a loot bot for playing alone | `src/gleaner` | [docs/gleaner.md](docs/gleaner.md) |

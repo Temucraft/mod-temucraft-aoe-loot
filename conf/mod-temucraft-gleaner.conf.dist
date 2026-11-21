@@ -1,0 +1,31 @@
+[worldserver]
+
+#
+#    Temucraft.Gleaner.Enable
+#        Description: The Gleaner-3000 loot bot.
+#        Default:     1
+
+Temucraft.Gleaner.Enable = 1
+
+#
+#    Temucraft.Gleaner.Creature
+#        Description: The bot's creature entry.
+#        Default:     608970
+
+Temucraft.Gleaner.Creature = 608970
+
+#
+#    Temucraft.Gleaner.InGroups
+#    Temucraft.Gleaner.InInstances
+#        Description: Also loot while in a group, or in dungeons and raids (off keeps group loot rules fair).
+#        Default:     0, 0
+
+Temucraft.Gleaner.InGroups = 0
+Temucraft.Gleaner.InInstances = 0
+
+#
+#    Temucraft.Gleaner.Range
+#        Description: How close (yards) the kill must be.
+#        Default:     60
+
+Temucraft.Gleaner.Range = 60
