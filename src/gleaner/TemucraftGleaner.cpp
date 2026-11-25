@@ -23,6 +23,7 @@
 #include "WorldSession.h"
 #include "TemporarySummon.h"
 #include "TemucraftModuleText.h"
+#include <mutex>
 #include <unordered_map>
 
 namespace
@@ -38,19 +39,43 @@ namespace
         float range = 60.0f;
     } cfg;
 
-    std::unordered_map<ObjectGuid::LowType, ObjectGuid> bots;   // player -> its bot
+    // player -> its bot. Written from item use and read from kill hooks on map threads (several at once): only
+    // through BotGuid / SetBot / ForgetBot, under botsLock (never held while calling into the core).
+    std::mutex botsLock;
+    std::unordered_map<ObjectGuid::LowType, ObjectGuid> bots;
+
+    ObjectGuid BotGuid(Player* player)
+    {
+        std::lock_guard<std::mutex> guard(botsLock);
+        auto it = bots.find(player->GetGUID().GetCounter());
+        return it == bots.end() ? ObjectGuid::Empty : it->second;
+    }
+
+    void SetBot(Player* player, ObjectGuid bot)
+    {
+        std::lock_guard<std::mutex> guard(botsLock);
+        bots[player->GetGUID().GetCounter()] = bot;
+    }
+
+    void ForgetBot(Player* player)
+    {
+        std::lock_guard<std::mutex> guard(botsLock);
+        bots.erase(player->GetGUID().GetCounter());
+    }
 
     char const* T(Player* p, uint32 id, char const* fb) { return TemucraftModuleText(MODULE, p, id, fb); }
 
     Creature* BotOf(Player* player)
     {
-        auto it = bots.find(player->GetGUID().GetCounter());
-        if (it == bots.end())
+        ObjectGuid const guid = BotGuid(player);
+        if (!guid)
             return nullptr;
-        Creature* bot = ObjectAccessor::GetCreature(*player, it->second);
-        if (!bot || !bot->IsInWorld() || bot->GetMapId() != player->GetMapId())
+        Creature* bot = ObjectAccessor::GetCreature(*player, guid);
+        // the guid repeats on other maps: after a map change it can name someone else's gleaner
+        if (!bot || !bot->IsInWorld() || bot->GetMapId() != player->GetMapId() || bot->GetOwnerGUID() != player->GetGUID())
         {
-            bots.erase(it);
+            ForgetBot(player);
+
             return nullptr;
         }
         return bot;
@@ -60,7 +85,7 @@ namespace
     {
         if (Creature* bot = BotOf(player))
             bot->DespawnOrUnsummon();
-        bots.erase(player->GetGUID().GetCounter());
+        ForgetBot(player);
     }
 
     void Glean(Player* player, Creature* killed)
@@ -149,7 +174,8 @@ public:
             bot->SetOwnerGUID(player->GetGUID());
             bot->SetFaction(player->GetFaction());
             bot->GetMotionMaster()->MoveFollow(player, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
-            bots[player->GetGUID().GetCounter()] = bot->GetGUID();
+            SetBot(player, bot->GetGUID());
+
             handler.SendSysMessage((!cfg.inGroups || !cfg.inInstances)
                 ? T(player, 3, "|cff66ccffGleaner-3000:|r online. Loot goes to your bags while you play alone in the open world.")
                 : T(player, 4, "|cff66ccffGleaner-3000:|r online."));
